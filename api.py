@@ -37,30 +37,30 @@ def post_user():
     try:
         connection = sqlite3.connect(db)
         connection.row_factory = sqlite3.Row
-	sql = connection.cursor()
+        sql = connection.cursor()
 
 	# 指定したuserがすでに存在するかどうかを確認する
-	selection = 'select * from user where name=?'
-	key = (dataDict['name'],)
-	sql.execute(selection, key)
-	rows = sql.fetchall()
+        selection = 'select * from user where name=?'
+        key = (dataDict['name'],)
+        sql.execute(selection, key)
+        rows = sql.fetchall()
 
 	# 既にユーザーが存在している...だと!?
-	if len(rows) == 1:
-	    result = {"result" : False}
+        if len(rows) == 1:
+            result = {"result" : False}
 
     	# ユーザーはまだいないぞ...!!
-	else:
+        else:
             insert = 'insert into user (name, token, tokenSec, created) values (?,?,?,?)'
-	    data = (dataDict['name'], dataDict['token'], dataDict['tokenSec'], dataDict['created'])
-	    sql.execute(insert,data)
-	    connection.commit()
-	    result = {"result" : True}
-	connection.close()
-	except user.DoesNotExist:
+            data = (dataDict['name'], dataDict['token'], dataDict['tokenSec'], dataDict['created'])
+            sql.execute(insert,data)
+            connection.commit()
+            result = {"result" : True}
+        connection.close()
+    except user.DoesNotExist:
 	    abort(404)
 
-	return make_response(jsonify(result))
+    return make_response(jsonify(result))
 
 
 # @brief : user認証を行うためのエンドポイント
@@ -70,31 +70,32 @@ def oauth_user():
     try:
         # 取り敢えずユーザーを検索するぞ
         selection = 'select * from user where name=?'
-	key=(dataDict['name'],)
-	connection = sqlite3.connect(db)
-	connection.row_factory = sqlite3.Row
-	sql = connection.cursor()
-	sql.execute(selection, key)
-	rows = sql.fetchall()
-	result = {"result":False}
+        key=(dataDict['name'],)
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
+        sql = connection.cursor()
+        sql.execute(selection, key)
+        rows = sql.fetchall()
+        result = {"result":False}
 
 	# そもそもユーザーが存在しないぞ
-	if len(rows) == 0:
+        if len(rows) == 0:
             # ToDo:
             # ユーザーが存在しなかったときに必要な処理を実装
-	    dummy = 'a'
+            dummy = 'a'
         # ユーザーが存在したな
-	elif len(rows) == 1:
-	    row = rows[0]
-	    if row['name'] == dataDict['name'] and row['token'] == dataDict['token'] and row['tokenSec'] == dataDict['tokenSec']:
-	        result = {
-	            "result" : True
-		    }
-	connection.close()
-	except user.DoesNotExist:
-	    abort(404)
+        elif len(rows) == 1:
+            row = rows[0]
+            if row['name'] == dataDict['name'] and row['token'] == dataDict['token'] and row['tokenSec'] == dataDict['tokenSec']:
+                result = {
+                    "result" : True
+                    }
+        connection.close()
+    except user.DoesNotExist:
+        abort(404)
 
-	return make_response(jsonify(result))
+    return make_response(jsonify(result))
+
 
 # @Brief : userを消去するためのエンドポイント
 @api.route('/user/<string:name>', methods=['DELETE'])
