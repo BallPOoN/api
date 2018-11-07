@@ -99,7 +99,7 @@ def oauth_user():
 
 # @Brief : userを消去するためのエンドポイント
 @api.route('/user/<string:name>', methods=['DELETE'])
-def del_user():
+def del_user(name):
     try:
         delete = 'delete from user where name=?'
         key = (name,)
@@ -112,6 +112,7 @@ def del_user():
         # ToDo:
         # 消去が成功したかどうかをデータベースに問い合わせて確認
         # 一定期間はデータを残すような機構を検討
+        # 猶予期間が終了したら投稿リストからも削除しなければいけない
         connection.close()
     except user.DoesNotExist:
         abort(404)
