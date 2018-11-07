@@ -20,7 +20,7 @@ class user(pe.Model):
 	tokenSec = pe.TextField()
 	created = pe.TextField()
 	favorite = pe.TextField()
-	langtitude = pe.TextField()
+	longtitude = pe.TextField()
 	latitude = pe.TextField()
 
 	class Meta:
