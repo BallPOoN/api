@@ -119,8 +119,27 @@ def del_user():
     return make_response(jsonify(result))
 
 # @Brief : user情報を更新するためのエンドポイント
-def update_user():
-    dummy = 'a'
+@api.route('/update/<string:name>', methods=['POST'])
+def update_user(name):
+    # ToDo:
+    # ユーザーの情報を更新する処理を実装する
+    # 位置情報，好きなもの，その他主にProfile関連
+    dataDict = json.loads(request.data)
+    try:
+        update = 'update user set favorite=?,latitude=?,longtitude=?where name=?'
+        key = (dataDict['favorite'], dataDict['latitude'], dataDict['longtitude'], name)
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
+        sql = connection.cursor()
+        sql.execute(update, key)
+        connection.commit()
+        result = {"result":True}
+
+        connection.close()
+    except user.DoesNotExist:
+        abort(404)
+
+    return make_response(jsonify(result))
 
 
 # @Brief : Error Handler
