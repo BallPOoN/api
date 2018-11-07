@@ -96,6 +96,37 @@ def oauth_user():
 
     return make_response(jsonify(result))
 
+# @brief : 指定したuserの情報を取得するためのエンドポイント
+@api.route('/uinfo/<string:name>', methods=['GET'])
+def get_user(name):
+    try:
+        selection = 'select * from user where name=?'
+        key = (name,)
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
+        sql = connection.cursor()
+        sql.execute(selection, key)
+        rows = sql.fetchall()
+        result = {"result":False}
+        if len(rows) == 0:
+            dummy = 'a'
+        elif len(rows) == 1:
+            # ToDo:
+            # Profileを表示するのに必要な情報を取得する
+            # 投稿リストも必要だと思うのでそれ用のdbにもアクセスしてレスポンスに追加する
+            row = rows[0]
+            result = {
+                "result":True,
+                "name":row['name'],
+                "favorite":row['favorite'],
+                "latitude":row['latitude'],
+                "longtitude":row['longtitude']
+                }
+        connection.close()
+    except user.DoesNotExist:
+        abort(404)
+
+    return make_response(jsonify(result))
 
 # @Brief : userを消去するためのエンドポイント
 @api.route('/user/<string:name>', methods=['DELETE'])
