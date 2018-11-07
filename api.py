@@ -154,6 +154,24 @@ def del_user(name):
 def update_user():
     dummy = 'a'
 
+@api.route('/post', methods=['POST'])
+def post_tweet():
+    dataDict = json.loads(request.data)
+
+    try:
+        insert = 'insert into post (name, time, latitude, longtitude, feel, comment) values (?,?,?,?,?,?)'
+        data = (dataDict['name'], dataDict['time'], dataDict['latitude'], dataDict['longtitude'], dataDict['feel'], dataDict['comment'])
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row;
+        sql = connection.cursor()
+        sql.execute(insert, data)
+        connection.commit()
+        result = {"result":True}
+        connection.close()
+    except user.DoesNotExist:
+        abort(404)
+
+    return make_response(jsonify(result))
 
 # @Brief : Error Handler
 @api.errorhandler(404)
