@@ -178,12 +178,15 @@ def post_tweet():
     dataDict = json.loads(request.data)
 
     try:
-        insert = 'insert into post (name, time, latitude, longtitude, feel, comment) values (?,?,?,?,?,?)'
-        data = (dataDict['name'], dataDict['time'], dataDict['latitude'], dataDict['longtitude'], dataDict['feel'], dataDict['comment'])
+        insert = 'insert into post (name, time, latitude, longtitude, altitude, feel, comment) values (?,?,?,?,?,?,?)'
+        data = (dataDict['name'], dataDict['time'], dataDict['latitude'], dataDict['longtitude'], dataDict['altitude'], dataDict['feel'], dataDict['comment'])
+        update = 'update user set longtitude=?,latitude=?,altitude=?,feel=?,comment=?where name=?'
+        key = (dataDict['longtitude'], dataDict['latitude'], dataDict['altitude'], dataDict['feel'], dataDict['comment'], dataDict['name'])
         connection = sqlite3.connect(db)
         connection.row_factory = sqlite3.Row;
         sql = connection.cursor()
         sql.execute(insert, data)
+        sql.execute(update, key)
         connection.commit()
         result = {"result":True}
         connection.close()
