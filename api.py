@@ -192,6 +192,90 @@ def post_tweet():
 
     return make_response(jsonify(result))
 
+@api.route('/get_tweet', methods=['POST'])
+def get_tweet():
+    dataDict = json.loads(request.data)
+    try:
+        name_ = dataDict.get('name')
+        since_ = dataDict.get('since')
+        to_ = dataDict.get('to')
+        id_ = dataDict.get('id')
+        lat_ = dataDict.get('latitude')
+        long_ = dataDict.get('longtitude')
+        dist_ = dataDict.get('distance')
+        count = dataDict.get('count')
+        key = 'select * from post where name = ? and time <= datetime(?) and time >= datetime(?) and id <= ? order by id desc'
+        data = (name_, to_, since_, id_)
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
+        sql = connection.cursor()
+        sql.execute(key, data)
+
+        rows = sql.fetchall()
+
+        result = []
+        for row in rows:
+            tmp = {'id':row['id'],
+                    'name':row['name'],
+                    'time':row['time'],
+                    'longtitude':row['longtitude'],
+                    'latitude':row['latitude'],
+                    'altitude':row['altitude'],
+                    'feel':row['feel'],
+                    'comment':row['comment']}
+            result.append(tmp)
+            print(tmp)
+
+    except user.DoesNotExist:
+        abort(404)
+
+    return make_response(jsonify(result))
+
+@api.route('/get_around', methods=['POST'])
+def get_around():
+    print(request.data)
+    dataDict = json.loads(request.data)
+    try:
+        extend = '''.load /home/ubuntu/api/libsqlitefunctions.so'''
+        key = 'select *, (6371000*ACOS(cos(radians(?))*cos(radians(latitude))*cos(radians(longtitude)-radians(?))+sin(radians(?))*sin(radians(latitude)))) as distance from user where distance <= ?;'
+
+
+        lat_ = dataDict.get('latitude')
+        long_ = dataDict.get('longtitude')
+        dist_ = int(dataDict.get('distance'))
+        data = (lat_, long_, lat_, dist_)
+
+        print(data)
+        print(type(dist_))
+
+        connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
+        connection.enable_load_extension(True)
+        connection.execute("select load_extension('./libsqlitefunctions.so')")
+        sql = connection.cursor()
+        sql.execute(key, data)
+
+        rows = sql.fetchall()
+
+        result = []
+        for row in rows:
+            tmp = { 'id':row['id'],
+                    'name':row['name'],
+                    'longtitude':row['longtitude'],
+                    'latitude':row['latitude'],
+                    'distance':row['distance'],
+                    'feel':row['feel'],
+                    'comment':row['comment'],
+                    'description':row['comment'],
+                    'altitude':row['altitude'],
+                    'longitude':row['longtitude']}
+            result.append(tmp)
+            print(tmp)
+    except user.DoesNotExist:
+        abort(404)
+
+    return make_response(jsonify(result))
+
 # @Brief : Error Handler
 @api.errorhandler(404)
 def not_found(error):
