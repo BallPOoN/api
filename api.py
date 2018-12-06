@@ -120,7 +120,8 @@ def get_user(name):
                 "name":row['name'],
                 "favorite":row['favorite'],
                 "latitude":row['latitude'],
-                "longtitude":row['longtitude']
+                "longtitude":row['longtitude'],
+                "altitude":row['altitude']
                 }
         connection.close()
     except user.DoesNotExist:
@@ -158,8 +159,8 @@ def update_user(name):
     # 位置情報，好きなもの，その他主にProfile関連
     dataDict = json.loads(request.data)
     try:
-        update = 'update user set favorite=?,latitude=?,longtitude=?where name=?'
-        key = (dataDict['favorite'], dataDict['latitude'], dataDict['longtitude'], name)
+        update = 'update user set favorite=?,latitude=?,longtitude=?,altitude=?where name=?'
+        key = (dataDict['favorite'], dataDict['latitude'], dataDict['longtitude'], dataDict['altitude'], name)
         connection = sqlite3.connect(db)
         connection.row_factory = sqlite3.Row
         sql = connection.cursor()
